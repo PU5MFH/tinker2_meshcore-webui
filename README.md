@@ -1,3 +1,5 @@
+> Tinker Board 2 / Heitor: preparação e estado da instalação em [TINKER2.md](TINKER2.md).
+
 <div align="center">
   <img src="frontend/public/favicon.svg" alt="MeshCore WebUI logo" width="128" height="128" />
 
