@@ -28,33 +28,17 @@ async def test_client_start_and_stop_does_not_raise(monkeypatch):
     await client.stop()
 
 
-class TestWithSenderPrefix:
-    """`_with_sender_prefix` mirrors the channel-msg "<name>: body" convention
-    that the MeshCore lib does NOT add automatically — see send_chan_msg."""
-
-    def test_prepends_when_self_info_has_name(self):
-        mc = SimpleNamespace(self_info={"name": "adr"})
-        assert MeshCoreClient._with_sender_prefix(mc, "hello") == "adr: hello"
-
-    def test_noop_when_already_prefixed(self):
-        mc = SimpleNamespace(self_info={"name": "adr"})
-        assert MeshCoreClient._with_sender_prefix(mc, "adr: hi") == "adr: hi"
-
-    def test_noop_when_no_self_info(self):
-        mc = SimpleNamespace(self_info=None)
-        assert MeshCoreClient._with_sender_prefix(mc, "hello") == "hello"
-
-    def test_noop_when_self_info_missing_name(self):
-        mc = SimpleNamespace(self_info={"public_key": "abc"})
-        assert MeshCoreClient._with_sender_prefix(mc, "hello") == "hello"
-
-    def test_different_name_is_not_treated_as_prefix(self):
-        # Someone else's "Alex: x" should still get our name prepended.
-        mc = SimpleNamespace(self_info={"name": "adr"})
-        assert (
-            MeshCoreClient._with_sender_prefix(mc, "Alex: hi")
-            == "adr: Alex: hi"
-        )
+class TestChannelTextUnchanged:
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("text", ["hello", "Heitor: typed manually", "Olá\nsegunda linha"])
+    async def test_sends_exactly_the_text_entered(self, text):
+        client = MeshCoreClient(host="x", port=5000)
+        reply = SimpleNamespace(is_error=lambda: False)
+        mc = SimpleNamespace(is_connected=True, self_info={"name": "Heitor"},
+                             commands=SimpleNamespace(send_chan_msg=AsyncMock(return_value=reply)))
+        client._mc = mc
+        await client.send_chan_msg(1, text)
+        mc.commands.send_chan_msg.assert_awaited_once_with(1, text)
 
 
 class TestSendTrace:

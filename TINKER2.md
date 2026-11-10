@@ -90,3 +90,13 @@ origin: PU5MFH/tinker2_meshcore-webui
 upstream: adradr/meshcore-webui
 
 Segredos, .env, bancos, dependências e arquivos compilados ficam fora do Git.
+
+
+## Texto de mensagens sem prefixo automático
+
+Por solicitação do operador, send_chan_msg transmite exatamente o texto
+digitado. A prévia otimista também não acrescenta o nome do companion.
+Prefixos digitados manualmente são preservados. Validação: três casos do envio
+no backend (texto simples, prefixo manual e Unicode/múltiplas linhas), dois
+testes do hook HTTP incluindo a prévia com self-info Heitor, e build de produção.
+Nenhuma mensagem RF foi enviada por esses testes.

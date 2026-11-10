@@ -28,7 +28,12 @@ describe("sending over a local HTTP URL", () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     const wrapper = ({ children }: { children: ReactNode }) =>
       createElement(QueryClientProvider, { client: queryClient }, children)
-    vi.mocked(api.post).mockResolvedValue({ id: 1 })
+    queryClient.setQueryData(["device", "self-info"], { name: "Heitor" })
+    vi.mocked(api.post).mockImplementation(async () => {
+      const cache = queryClient.getQueryData<{pages: {items: {text: string}[]}[]}>(["messages", "chan:1"])
+      expect(cache?.pages[0].items[0].text).toBe("local HTTP test")
+      return { id: 1 }
+    })
     const { result, unmount } = renderHook(() => useSendMessage(), { wrapper })
     try {
       expect(clientMessageId()).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
