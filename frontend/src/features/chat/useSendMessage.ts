@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { InfiniteData } from "@tanstack/react-query"
 import { api } from "@/lib/api"
 import { notifyError } from "@/lib/notify"
+import { clientMessageId } from "./clientMessageId"
 
 interface SendArgs {
   contactPubKey?: string
@@ -53,7 +54,7 @@ export function useSendMessage() {
       ] as const
       await qc.cancelQueries({ queryKey: key })
       const previous = qc.getQueryData<MessagesData>(key)
-      const tempId = crypto.randomUUID()
+      const tempId = clientMessageId()
       const isChannel = vars.channelIdx !== undefined
       const selfName = isChannel
         ? qc.getQueryData<{ name?: string }>(["device", "self-info"])?.name
